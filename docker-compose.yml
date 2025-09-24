@@ -1,0 +1,65 @@
+version: "3.9"
+
+name: presidio-prod
+#networks:
+#  presidio_net:
+
+services:
+  presidio-analyzer:
+    build:
+      context: ./analyzer
+    image: presidio-analyzer:de-en-spacy37
+    container_name: presidio-analyzer
+    #networks: [presidio_net]
+    # Presidio-REST lauscht im Container auf 3000 (offiziell) → wir exposen 5001
+    ports:
+      - "5001:3000"
+    environment:
+      LOG_LEVEL: "INFO"
+      NLP_ENGINE_NAME: "spacy"
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1g
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  presidio-anonymizer:
+    build:
+      context: ./anonymizer
+    image: presidio-anonymizer:gunicorn
+    container_name: presidio-anonymizer
+   # networks: [presidio_net]
+    ports:
+      - "5002:3000"
+    environment:
+      LOG_LEVEL: "INFO"
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512m
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  default:
+    external:
+      name: shared_network_optikronix
