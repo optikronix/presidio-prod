@@ -21,6 +21,6 @@ COPY default.yaml /usr/bin/presidio_analyzer/conf/default.yaml
 # Production-WSGI-Server
 RUN python -m pip install --no-cache-dir gunicorn==21.2.0
 
+
 EXPOSE 3000
-# app.py stellt "app" bereit → Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "2", "--threads", "4", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "--chdir", "/usr/bin", "--bind", "0.0.0.0:3000", "--workers", "2", "--threads", "4", "--timeout", "120", "app:app"]
