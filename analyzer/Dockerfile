@@ -23,4 +23,6 @@ RUN python -m pip install --no-cache-dir gunicorn==21.2.0
 
 
 EXPOSE 3000
-CMD ["gunicorn", "--chdir", "/usr/bin", "--bind", "0.0.0.0:3000", "--workers", "2", "--threads", "4", "--timeout", "120", "app:app"]
+
+# NEU (vollqualifiziertes Modul aus dem Paket)
+CMD ["gunicorn","--bind","0.0.0.0:3000","--workers","2","--threads","4","--timeout","120","presidio_analyzer.app:app"]
